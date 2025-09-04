@@ -1,6 +1,9 @@
 NaMe=$1
-YeAr=$2
-MoNtH=$3
-export NCBI_API_KEY=$4;
-export EMAIL=$5;
-esearch -db nuccore -query "$NaMe""[Organism] -mindate "$YeAr""/""$MoNtH" -maxdate "$YeAr""/""$MoNtH" " | efetch -format docsum > /workplace/ALL_"$YeAr"_"$MoNtH"_"$NaMe"_metadata.xml
+export NCBI_API_KEY=$2;
+export EMAIL=$3;
+if [ $# -lt 3 ]
+then 
+        echo "usage bash "$0" TargetSpeciesName NCBI_API_KEY EMAIL "
+else
+esearch -db nuccore -query "$NaMe""[Organism]" | efetch -format docsum > MetaData_"$NaMe".xml
+fi
