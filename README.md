@@ -25,9 +25,11 @@ Components provided in this repo
 
 Directory Scheme  
 root
-|---BMR.sif / BMR docker image
-|---DB/
-|    |_existing species sequences:fasta (download before pipeline usage)
-|    |_existing species metedata:json (download before pipeline usage)
-|---Scripts/
-    |_
+(
+BMR.sif / BMR docker image);
+;(DB/(
+      existing species sequences:fasta (download before pipeline usage),
+      existing species metedata:json (download before pipeline usage) 
+      ) 
+  )
+;Scripts/ ()
