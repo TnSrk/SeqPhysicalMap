@@ -22,3 +22,12 @@ Components provided in this repo
 1. Dockerfile or Singularity definition file
 2. Related bash shell scripts
 3. Related R scripts
+
+Directory Scheme  
+root
+|---BMR.sif / BMR docker image
+|---DB/
+|    |_existing species sequences:fasta (download before pipeline usage)
+|    |_existing species metedata:json (download before pipeline usage)
+|---Scripts/
+    |_
