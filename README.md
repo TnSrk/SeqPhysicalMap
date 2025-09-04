@@ -6,7 +6,7 @@ Input
   format = fasta
   
 - Metadata of the species
-  format = json or xml or tsv or csv **currently=json
+  format = json or xml or tsv or csv **current=json
 
 - Lat/Lon for conutry/lower level area
   format = csv
