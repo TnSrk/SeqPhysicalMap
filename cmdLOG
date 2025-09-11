@@ -1,0 +1,44 @@
+## cd to base directory wD 
+## copy requiredFiles.tgz that contains required data files that cannot be hosted on github to wD directory
+# Extract archive
+tar -zxvf requiredFiles.tgz
+
+# move sequences database file to BLASTDB directory
+mv requiredFiles/RotaVDB BLASTDB/
+
+# move Metadata to base directory
+mv requiredFiles/Metadata.xml ./
+
+# move worldcities.csv to base directory
+mv requiredFiles/worldcities.csv ./
+
+# move shapefile archive to shapefiles directory
+mv requiredFiles/ne_110m_admin_0_countries.zip shapefiles/
+
+# cd into shapefiles directory then extract ne_110m_admin_0_countries.zip
+cd shapefiles/;unzip ne_110m_admin_0_countries.zip
+
+# remove ne_110m_admin_0_countries.zip after extraction
+rm ne_110m_admin_0_countries.zip
+
+# cd to wD before docker image building
+cd ../
+
+# build and docker image name bmrserver
+sudo docker build -t bmrserver:latest .
+
+# test an image
+sudo docker run --rm -it -v $(pwd):/wD bmrserver blastn -h
+
+# create NCBI blast database from RotaVDB file with tools inside docker image bmrserver
+sudo docker run --rm -it -v $(pwd):/wD bmrserver bash -c 'cd /wD/BLASTDB;makeblastdb -dbtype nucl -parse_seqids -in RotaVDB'
+
+# run server: listen to port 8080 on the host
+sudo docker run --rm -it -v $(pwd):/wD -p 8080:8080 bmrserver python3 server.py
+
+##
+## Test accessing api from other machine with curl
+## Change 20.0.0.8 to host machine's ip
+## curl -X POST -F "file=@X.fasta" http://20.0.0.8:8080/generate-svg -o occurrence_map.svg 
+## The output should saved to occurrence_map.svg
+##

@@ -1,0 +1,175 @@
+#!/bin/bash
+
+to_epoch() {
+    local d="$1"
+    # Remove quotes
+    d="${d//\"}"
+    if [ -z "$d" ]; then
+        echo ""
+        return
+    fi
+    d="${d//\//-}" # Replace / with -
+    if [[ $d =~ ^[0-9]{4}$ ]]; then
+        d="$d-01-01" # Year-only to YYYY-MM-DD
+    fi
+    if [[ $d =~ ^[0-9]{4}-[0-9]{2}$ ]]; then
+        d="$d-01" # Year-only to YYYY-MM
+    fi
+
+    if [[ $d =~ ^[A-Z][a-z]{2}-[0-9]{4}$ ]]; then
+        year="${d#*-}"
+        mon="${d%-*}"
+        case "$mon" in
+            Jan) m=01 ;;
+            Feb) m=02 ;;
+            Mar) m=03 ;;
+            Apr) m=04 ;;
+            May) m=05 ;;
+            Jun) m=06 ;;
+            Jul) m=07 ;;
+            Aug) m=08 ;;
+            Sep) m=09 ;;
+            Oct) m=10 ;;
+            Nov) m=11 ;;
+            Dec) m=12 ;;
+            *) echo ""; return ;;
+        esac
+        d="$year-$m-01"
+    fi
+    if [[ $d =~ ^[0-9]{2}-[A-Z][a-z]{2}-[0-9]{4}$ ]]; then
+        day="${d%%-*}"
+        rest="${d#*-}"
+        mon="${rest%-*}"
+        year="${rest#*-}"
+        case "$mon" in
+            Jan) m=01 ;;
+            Feb) m=02 ;;
+            Mar) m=03 ;;
+            Apr) m=04 ;;
+            May) m=05 ;;
+            Jun) m=06 ;;
+            Jul) m=07 ;;
+            Aug) m=08 ;;
+            Sep) m=09 ;;
+            Oct) m=10 ;;
+            Nov) m=11 ;;
+            Dec) m=12 ;;
+            *) echo ""; return ;;
+        esac
+        d="$year-$m-$day"
+    fi
+    if [[ $d =~ ^[0-9]{4}-[A-Z][a-z]{2}-[0-9]{2}$ ]]; then
+        year="${d%%-*}"
+        rest="${d#*-}"
+        mon="${rest%-*}"
+        day="${rest#*-}"
+        case "$mon" in
+            Jan) m=01 ;;
+            Feb) m=02 ;;
+            Mar) m=03 ;;
+            Apr) m=04 ;;
+            May) m=05 ;;
+            Jun) m=06 ;;
+            Jul) m=07 ;;
+            Aug) m=08 ;;
+            Sep) m=09 ;;
+            Oct) m=10 ;;
+            Nov) m=11 ;;
+            Dec) m=12 ;;
+            *) echo ""; return ;;
+        esac
+        d="$year-$m-$day"
+    fi
+    epoch=$(date -d "$d" +%s 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        echo ""
+    else
+        echo "$epoch"
+    fi
+}
+
+# Function to escape quotes in CSV fields
+escape_csv() {
+    local field="$1"
+    # If field contains commas or quotes, wrap in quotes and escape inner quotes
+    if [[ "$field" =~ , ]] || [[ "$field" =~ \" ]]; then
+        field="${field//\"/\"\"}"
+        echo "\"$field\""
+    else
+        echo "$field"
+    fi
+}
+
+while IFS= read -r line || [ -n "$line" ]; do
+    if [ -z "$line" ]; then
+        echo ""
+        continue
+    fi
+    # Parse CSV line, handling quoted fields
+    # Use awk to split CSV, preserving quoted fields
+    fields=()
+    while IFS=',' read -r -a row; do
+        # Handle fields with commas inside quotes
+        current_field=""
+        in_quotes=false
+        for field in "${row[@]}"; do
+            if [[ "$field" =~ ^\".*\"$ ]]; then
+                # Fully quoted field
+                field="${field#\"}"
+                field="${field%\"}"
+                fields+=("$field")
+            elif [[ "$field" =~ ^\" ]]; then
+                # Start of quoted field
+                in_quotes=true
+                current_field="${field#\"}"
+            elif [[ "$field" =~ \"$ ]]; then
+                # End of quoted field
+                in_quotes=false
+                current_field="$current_field,$field"
+                current_field="${current_field%\"}"
+                fields+=("$current_field")
+                current_field=""
+            elif $in_quotes; then
+                # Continuation of quoted field
+                current_field="$current_field,$field"
+            else
+                fields+=("$field")
+            fi
+        done
+        # If still in quotes, continue reading
+        if $in_quotes; then
+            read -r next_line
+            line="$line\n$next_line"
+            continue
+        fi
+        break
+    done <<< "$line"
+    
+    len=${#fields[@]}
+    # Convert first date
+    if [ "$len" -ge 1 ]; then
+        epoch1=$(to_epoch "${fields[0]}")
+        fields[0]="$epoch1"
+    else
+        fields[0]=""
+    fi
+    # Convert second date
+    if [ "$len" -ge 2 ]; then
+        epoch2=$(to_epoch "${fields[1]}")
+        fields[1]="$epoch2"
+    else
+        fields[1]=""
+    fi
+    # Output all fields as CSV, preserving original structure
+    if [ "$len" -ge 1 ]; then
+        # Print first field
+        printf '%s' "$(escape_csv "${fields[0]}")"
+        # Print remaining fields with commas
+        for ((i=1; i<${#fields[@]}; i++)); do
+            printf ',%s' "$(escape_csv "${fields[i]}")"
+        done
+        echo
+    else
+        echo ",,"
+    fi
+done

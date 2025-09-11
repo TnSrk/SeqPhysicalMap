@@ -36,12 +36,11 @@ BEGIN {
         # Split block into lines
         split(block, lines, "\n")
         for (i = 1; i <= block_lines; i++) {
-            # Extract 12-column line for Id (first line)
-            if (i == 1 && lines[i] !~ /^</) {
-                split(lines[i], fields, /[ \t]+/)
-                if (length(fields) == 12) {
-                    id = fields[2] "_" fields[9]
-                }
+            # Extract Id from <Id> tag
+            if (lines[i] ~ /^<Id>/) {
+                sub(/^<Id>/, "", lines[i])
+                sub(/<\/Id>$/, "", lines[i])
+                id = lines[i]
             }
             # Extract tagged fields
             if (lines[i] ~ /^<Title>/) {
@@ -116,4 +115,4 @@ BEGIN {
 END {
     print "]"
 }
-' | sed ':a;s/\([^\\]\)"/\1\\"/g;ta' 
+' | sed ':a;s/\([^\\]\)"/\1\\"/g;ta'
