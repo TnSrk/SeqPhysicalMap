@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"], input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin-top: 10px;
+            color: #555;
+        }
+        .loading {
+            color: blue;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>Keyword Search</h1>
+    <div class="form-container">
+        <form id="searchForm" enctype="multipart/form-data">
+            <label for="grepInput">Search Keyword:</label>
+            <input type="text" id="grepInput" name="grep" placeholder="Enter search keyword" required>
+            <label for="numInput">Number of Matches (optional):</label>
+            <input type="number" id="numInput" name="num" placeholder="Enter number of matches" min="1">
+            <label for="fileInput">Upload File (optional):</label>
+            <input type="file" id="fileInput" name="file" accept=".fasta">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div id="status"></div>
+    <div id="result"></div>
+
+    <script>
+        const form = document.getElementById('searchForm');
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const grepInput = document.getElementById('grepInput').value;
+            const numInput = document.getElementById('numInput').value;
+            const fileInput = document.getElementById('fileInput').files[0];
+
+            if (!grepInput) {
+                statusDiv.textContent = 'Please enter a search keyword';
+                statusDiv.className = 'error';
+                return;
+            }
+
+            statusDiv.textContent = 'Searching...';
+            statusDiv.className = 'loading';
+
+            const formData = new FormData();
+            formData.append('grep', grepInput);
+            if (numInput) formData.append('num', numInput);
+            if (fileInput) {
+                formData.append('file', fileInput);
+            } else {
+                // Create a dummy file to satisfy server requirements
+                const dummyFile = new File(["dummy content"], "dummy.fasta", { type: "text/plain" });
+                formData.append('file', dummyFile);
+            }
+
+            try {
+                const response = await fetch('/greptitle', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                const text = await response.text();
+                statusDiv.textContent = 'Search completed';
+                statusDiv.className = 'success';
+                resultDiv.innerHTML = `<pre>${text}</pre>`;
+            } catch (error) {
+                statusDiv.textContent = `Error: ${error.message}`;
+                statusDiv.className = 'error';
+                resultDiv.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>

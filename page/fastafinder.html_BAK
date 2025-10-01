@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        #status {
+            margin-top: 10px;
+            color: #555;
+        }
+        .loading {
+            color: blue;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload FASTA File</h1>
+    <form action="http://20.0.0.8:8080/generate-html" method="post" enctype="multipart/form-data" target="_blank">
+        <input type="file" id="fileInput" name="file" accept=".fasta">
+        <button type="submit">Upload</button>
+    </form>
+    <div id="status"></div>
+
+    <script>
+        // Optional: Add client-side validation or status if needed
+        const form = document.querySelector('form');
+        const statusDiv = document.getElementById('status');
+
+        form.addEventListener('submit', (event) => {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                statusDiv.textContent = 'Please select a FASTA file';
+                statusDiv.className = 'error';
+                event.preventDefault();
+                return;
+            }
+            statusDiv.textContent = 'Uploading and processing file...';
+            statusDiv.className = 'loading';
+            // No need to handle response in JS; browser will render it in new tab
+        });
+    </script>
+</body>
+</html>
