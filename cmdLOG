@@ -27,6 +27,15 @@ cd ../
 # build and docker image name bmrserver
 sudo docker build -t bmrserver:latest .
 
+####################################################################################
+# ## If building image with Dockerfile failed then use archived image file instead
+# ## Extract docker image archive bmrserver.tar.gz ## The archived image store in requiredFiles in sharepoint link
+# gunzip bmrserver.tar.gz
+# ## use docker archive   
+# docker load -i bmrserver.tar
+####################################################################################
+
+
 # test an image
 sudo docker run --rm -it -v $(pwd):/wD bmrserver blastn -h
 
