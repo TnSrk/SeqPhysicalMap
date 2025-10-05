@@ -50,4 +50,4 @@ sudo docker run --rm -it -v $(pwd):/wD -p 8080:8080 bmrserver python3 server.py
 ## Change 20.0.0.8 to host machine's ip
 ## curl -X POST -F "file=@X.fasta" http://20.0.0.8:8080/generate-svg -o occurrence_map.svg 
 ## The output should saved to occurrence_map.svg
-##
+##  curl -X POST  "http://0.0.0.0:8080/grepfield-map?grep=A17&field=SubName&num=100&map=1" -o x.html
