@@ -43,7 +43,7 @@ sudo docker run --rm -it -v $(pwd):/wD bmrserver blastn -h
 sudo docker run --rm -it -v $(pwd):/wD bmrserver bash -c 'cd /wD/BLASTDB;makeblastdb -dbtype nucl -parse_seqids -in RotaVDB'
 
 # run server: listen to port 8080 on the host
-sudo docker run --rm -it -v $(pwd):/wD -p 8080:8080 bmrserver python3 server.py
+sudo docker run --rm -it -v $(pwd):/wD -p 8080:8080 bmrserver python3 /wD/serverJ.py
 
 ##
 ## Test accessing api from other machine with curl
@@ -51,3 +51,18 @@ sudo docker run --rm -it -v $(pwd):/wD -p 8080:8080 bmrserver python3 server.py
 ## curl -X POST -F "file=@X.fasta" http://20.0.0.8:8080/generate-svg -o occurrence_map.svg 
 ## The output should saved to occurrence_map.svg
 ##  curl -X POST  "http://0.0.0.0:8080/grepfield-map?grep=A17&field=SubName&num=100&map=1" -o x.html
+##
+##   USING CURL FOR CALLING MAP GENERATING API 
+##       SEARCHING WITH KEYWORD
+## curl -X POST  "http://0.0.0.0:8080/grepfield-map?field=SubName&grep=A120&num=10000&map=2" -o ~/Downloads/worldmap.html
+##   http://0.0.0.0:8080/grepfield-map : API path 
+##   grep=A120 : search string "A120"
+##   field=SubName : search in field SubName
+##   num=10000 : limit search result to 10000 records
+##   -o ~/Downloads/worldmap.html : save html with svg image output to file name "worldmap.html"
+## 
+##      SEARCHING WITH FASTA FILE
+## curl -X POST -F "file=@EnteroTest.fasta" http://20.0.0.8:8080/generate-html -o occurrence_map.html
+## http://20.0.0.8:8080/generate-html : API path
+## "file=@EnteroTest.fasta" send fasta file "EnteroTest.fasta" to API for sequence searching
+## -o occurrence_map.html : save responsed html file to occurrence_map.html
