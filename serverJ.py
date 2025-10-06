@@ -371,7 +371,8 @@ class APIHandler(BaseHTTPRequestHandler):
 					f.write(form['file'].file.read())
 
 				# Generate SVG
-				blastCall = f"bash /wD/Script/DockerBlastCall.sh {upload_file} | bash /wD/Script/DockBlastOut2MapInputGen.sh ;python3 /wD/occurrences_map_geopandas.py;mv /wD/occurrences_map.svg {output_svg}"
+				#blastCall = f"bash /wD/Script/DockerBlastCall.sh {upload_file} | bash /wD/Script/DockBlastOut2MapInputGen.sh ;python3 /wD/occurrences_map_geopandas.py;mv /wD/occurrences_map.svg {output_svg}"
+				blastCall = f"bash /wD/Script/DockerBlastCall.sh {upload_file} | bash /wD/Script/DockBlastOut2MapInputGen.sh ;python3 /wD/occurrences_map_geopandas.py;mv output.svg_Thailand.svg {output_svg}"
 				subprocess.run(blastCall, shell=True)
 
 				# Send HTML response with embedded SVG
