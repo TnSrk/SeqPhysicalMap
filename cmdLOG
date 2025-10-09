@@ -53,6 +53,17 @@ sudo docker run --rm -it -v $(pwd):/wD -p 8080:8080 bmrserver python3 /wD/server
 ##  curl -X POST  "http://0.0.0.0:8080/grepfield-map?grep=A17&field=SubName&num=100&map=1" -o x.html
 ##
 ##   USING CURL FOR CALLING MAP GENERATING API 
+##       CREATING MAP FROM CSV FILE
+##        input.csv file Example 
+##      (PlaceName,Lat,Lon,Time)
+##      India,28.6100,77.2300,1196467200
+##      Taiwan,24.1439,120.6794,1199145600
+##      Thailand,13.7525,100.4942,1361059200
+##
+## curl -X POST -F "file=@input.csv"  "http://20.0.0.8:8080/generate-html0" -o csv.html
+##  -F "file=@input.csv" : send input.csv to server
+##  -o csv.html : indicate csv.html as output html file
+##
 ##       SEARCHING WITH KEYWORD
 ## curl -X POST  "http://0.0.0.0:8080/grepfield-map?field=SubName&grep=A120&num=10000&map=2" -o ~/Downloads/worldmap.html
 ##   http://0.0.0.0:8080/grepfield-map : API path 
